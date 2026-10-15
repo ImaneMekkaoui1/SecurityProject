@@ -17,6 +17,7 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String secret;
+
     @Value("${jwt.expiration}")
     private long expiration;
 
@@ -29,10 +30,14 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
-                .issuedAt(new Date())  //date de creation
+                .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
                 .compact();
+    }
+
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
     }
 
     private Claims extractAllClaims(String token) {
@@ -43,7 +48,13 @@ public class JwtService {
                 .getPayload();
     }
 
-    public String extractUsername(String token) {
-        return extractAllClaims(token).getSubject();
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    private boolean isTokenExpired(String token) {
+        Date expiration = extractAllClaims(token).getExpiration();
+        return expiration.before(new Date());
     }
 }

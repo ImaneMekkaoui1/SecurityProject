@@ -11,34 +11,45 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 @Configuration
 public class SecurityConfig {
-    private JwtFilter jwtFilter;
+
+    private final JwtFilter jwtFilter;
 
     public SecurityConfig(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
-    public PasswordEncoder getPasswordEncoder() {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    @Bean
-    public JwtFilter getJwtFilter() {
-        return jwtFilter;
-    }
-    @Bean
-    public AuthenticationManager getAuthenticationManager(AuthenticationConfiguration authenticationConfiguration) {
-        return   authenticationConfiguration.getAuthenticationManager();
-    }
-    public securityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        http.csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorizeRequests -> authorizeRequests.requestMatchers("/auth/**", "/h2-console/**").permitAll())
-                .authorizeHttpRequests(auth -> )
-                .headers(headers -> headers.frameOptions(frame-> frame.sameOrigin()))
-                .
 
+    @Bean
+    public AuthenticationManager
+    authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 
+    @Bean
+    public SecurityFilterChain
+    securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable()).sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                ).authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**", "/h2-console/**"
+                                )
+                                .permitAll()
+                                .requestMatchers("/api/**")
+                                .authenticated()
+                                .anyRequest()
+                                .permitAll()
+                )
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
 }
-
