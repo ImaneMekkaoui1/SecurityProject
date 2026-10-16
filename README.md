@@ -176,47 +176,54 @@ Tous les tests ont été réalisés avec **Postman**.
 `POST /auth/register` avec l'email et le mot de passe en JSON.
 ✅ **Résultat attendu** : `200 OK` – `Utilisateur cree`
 
-![Register](docs/screenshots/01-register.png)
+<img width="468" height="434" alt="image" src="https://github.com/user-attachments/assets/7fc2e82f-cb7a-4b4a-a803-e96a4fd7be63" />
+
 
 ### Test 2 – Connexion et génération du token JWT
 
 `POST /auth/login` avec les mêmes identifiants.
 ✅ **Résultat attendu** : `200 OK` – réponse JSON contenant le champ `token` (header `eyJhbGciOiJIUzM4NCJ9` = HS384, puis payload, puis signature).
 
-![Login](docs/screenshots/02-login.png)
+<img width="468" height="429" alt="image" src="https://github.com/user-attachments/assets/1b580886-5572-4836-a8da-5f90cb01225b" />
+
 
 ### Test 3 – Vérification en base de données (console H2)
 
 Requête `SELECT * FROM USERS` : l'utilisateur est bien enregistré avec le rôle `USER` et son **mot de passe haché en BCrypt** (`$2a$10$...`), jamais en clair.
 
-![Console H2](docs/screenshots/03-h2-console.png)
+<img width="468" height="159" alt="image" src="https://github.com/user-attachments/assets/c261814c-0b15-470e-8aa3-6ad2e11be7e4" />
+
 
 ### Test 4 – Utilisation du token en *Bearer Token*
 
 Le token reçu au login est copié dans l'onglet **Authorization → Bearer Token** de Postman. Postman ajoute automatiquement le header `Authorization: Bearer <token>` aux requêtes suivantes.
 
-![Bearer Token](docs/screenshots/04-bearer-token.png)
+<img width="468" height="457" alt="image" src="https://github.com/user-attachments/assets/ac2ef7a6-210c-4826-9d28-c0e5a7c3f9a5" />
+
 
 ### Test 5 – Accès à un endpoint protégé : `/api/hello`
 
 `GET /api/hello` avec un token valide.
 ✅ **Résultat attendu** : `200 OK` – `Bienvenue dans l api securisee`
 
-![API Hello](docs/screenshots/05-api-hello.png)
+<img width="468" height="222" alt="image" src="https://github.com/user-attachments/assets/5a4f2b3d-f728-448a-a262-f6d335dc7260" />
+
 
 ### Test 6 – Accès au profil : `/api/profile`
 
 `GET /api/profile` avec un token valide : le filtre `JwtFilter` extrait l'email du token et authentifie l'utilisateur.
 ✅ **Résultat attendu** : `200 OK` – `Utilisateur connecte : student@gmail.com`
 
-![API Profile](docs/screenshots/06-api-profile.png)
+<img width="468" height="216" alt="image" src="https://github.com/user-attachments/assets/a5578529-89ea-4929-9f23-7ec107ceba8e" />
+
 
 ### Test 7 – Token modifié (test négatif)
 
 On altère quelques caractères du token puis on rappelle `GET /api/profile`. La signature ne correspond plus : le token est rejeté et l'accès est refusé.
 ❌ **Résultat attendu** : `403 Forbidden`
 
-![Token modifié](docs/screenshots/07-token-modifie-403.png)
+<img width="468" height="416" alt="image" src="https://github.com/user-attachments/assets/3033a4ca-3596-45af-bb06-7ebdfc0662d7" />
+
 
 ---
 
